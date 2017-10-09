@@ -16,6 +16,7 @@ const NUM_SALVE = 40;
 function setup() {
     createCanvas(640, 360);
     
+    
     // character setup
     character = createSprite(100,20,32,32);
     const idle_anim = loadAnimation("assets/idle/idle0.png","assets/idle/idle2.png");
@@ -73,7 +74,7 @@ function setup() {
 }
 
 function draw() {
-    background("white");
+    background("lightblue");
     
     for (let i = 0; i < clouds.length; i++){
         const cloud = clouds[i];
