@@ -19,7 +19,7 @@ function setup() {
     // character setup
     character = createSprite(100,20,32,32);
     const idle_anim = loadAnimation("assets/idle/idle0.png","assets/idle/idle2.png");
-    const run_anim = loadAnimation("assets/run/run0.png","assets/run/run7.png")
+    const run_anim = loadAnimation("assets/am_run/run1.png","assets/am_run/run9.png")
     character.addAnimation("idle", idle_anim);
     character.addAnimation("run", run_anim);
     character.isJumping = true;
@@ -27,7 +27,7 @@ function setup() {
     character.lives = 100;
     
     //platform setup
-    platform = createSprite(width/2, height - 10, width, 20);
+    platform = createSprite(width/2, height - 10, width*2, 20);
     platform.debug = true;
     
     
@@ -42,15 +42,7 @@ function setup() {
         walls.add(wall);
     }
     
-    for (let i = 0; i < NUM_BUSHES; i++) {
-        createSprite(
-            random(0,width),
-            random(height-20, height),
-            random(20,40),
-            random(40,50)
-        );
-        
-    }
+    
     
     
     clouds = new Group();
@@ -96,7 +88,7 @@ function draw() {
     if (keyIsPressed) {
         character.changeAnimation("run");
     } else{
-        character.changeAnimation("idle");
+        character.changeAnimation("run");
     }
     
     if (character.collide(platform) || character.collide(walls)) {
@@ -115,16 +107,43 @@ function draw() {
         }
     }
     
+    
     character.collide(walls);
     
     if (character.overlap(beam)){
         character.lives--;
     }
     
+//    wrapping platform
+    wrap(platform, width);
+//    for(let i = 0: i < walls.length; i++) {
+//        const wall = walls[i];
+//        wrap(wall, random(width*2, width*4);)
+//    }
+    
+    
+//    camera and object constant movement
+    camera.position.x += 2;
+    beam.position.x += 2;
+    character.position.x += 2;
+    
     drawSprites();
+    drawSprites(walls);
+    drawSprites(salve);
     
 //    ui
+    camera.off();
+    drawSprites(clouds);
+    fill(0);
+    textAlign(LEFT);
+    textSize(12);
     text("Life: " + character.lives, 10,20);
+    
+//    detect game ending
+//    if(character.lives <= 0) {
+//        gameState = 3;
+//        character.velocity.y = 0;
+//    }
 }
 
 function constantMovement() {
@@ -136,10 +155,8 @@ function constantMovement() {
     }
 }
 
-
-
-//function mouseClicked() {
-//    var sprite = createSprite(mouseX, mouseY, 30, 30);
-//    sprite.velocity.x = random(-5, 5);
-//    sprite.velocity.y = random(-5, 5);
-//}
+function wrap(obj, reset) {
+    if(camera.position.x - obj.position.x >= width/2){
+        obj.position.x += reset;
+    }
+}
