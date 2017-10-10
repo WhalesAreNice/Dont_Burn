@@ -4,6 +4,9 @@ var clouds;
 var walls;
 var beam;
 var salve;
+var invis_wall;
+var stuff;
+var cooldown = 0;
 const SPEED = 4;
 const GRAVITY = 1;
 const JUMP_SPEED = SPEED*4;
@@ -17,6 +20,8 @@ const CAMERA_SPEED = 5;
 function setup() {
     createCanvas(640, 360);
     
+    stuff = new Group();
+    
     
     // character setup
     character = createSprite(100,20,32,32);
@@ -28,8 +33,12 @@ function setup() {
     character.debug = true;
     character.lives = 100;
     
+    
+    stuff.add(character);
+    
     //platform setup
     platform = createSprite(width/2, height - 10, width*2, 20);
+    stuff.add(platform);
     
 //    platform = loadImage("assets/platform/platform3.png");
     
@@ -55,13 +64,16 @@ function setup() {
             const wall_img = loadImage(wall_imgs[floor(random(0, wall_imgs.length))]);
             wall.addImage(wall_img);
         }
-        
         walls.add(wall);
+        
     }
     walls.debug = true;
     
     
-    
+    invis_wall = new Group();
+    const invis_walls1 = createSprite(-1,height/2,2, height);
+    const invis_walls2 = createSprite(width+100, height/2, 200, height);
+    invis_wall.add(invis_walls1, invis_walls2);
     
     
     clouds = new Group();
@@ -85,7 +97,7 @@ function setup() {
     }
     
     beam = createSprite(0,0,100,height*2);
-    
+    stuff.add(beam);
     
     salve = new Group();
     for (let i = 0; i < NUM_SALVE; i++){
@@ -141,10 +153,15 @@ function draw() {
         }
     }
     
-    if (keyWentDown("w")) {
-        character.position.x += 200;
+    
+    if (keyWentDown("w") && cooldown <= 0) {
+        character.position.x += 200; 
+        cooldown += 300;
     }
     
+    if (cooldown > 0) {
+        cooldown -= 1;
+    }
     
     character.collide(walls);
     
@@ -176,17 +193,22 @@ function draw() {
     beam.position.x += CAMERA_SPEED;
     character.position.x += CAMERA_SPEED;
     
-    drawSprites();
+    //drawSprites();
+   
+    drawSprites(stuff);
     drawSprites(walls);
     drawSprites(salve);
     
 //    ui
     camera.off();
     drawSprites(clouds);
+    drawSprites(invis_wall);
     fill(0);
     textAlign(LEFT);
     textSize(12);
-    text("Life: " + character.lives, 10,20);
+    text("Life: " + character.lives, 60,20);
+    text("Score: " + floor(character.position.x/100), 500, 20);
+    text("Blink Cooldown: " + ceil  (cooldown/60), 60, 50);
     
 //    detect game ending
 //    if(character.lives <= 0) {
