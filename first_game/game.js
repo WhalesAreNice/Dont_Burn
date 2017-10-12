@@ -17,14 +17,26 @@ const NUM_SALVE = 1;
 const CAMERA_SPEED = 5;
 
 
+
+//audio
+//var jump_sfx = [];
+//const jump_files = ["assets/sfx/character/jump0.wav", "assets/sfx/character/jump1.wav", "assets/sfx/character/jump2.wav", "assets/sfx/character/jump3.wav"];
+
+function preload() {
+//    for ( let i = 0; i < jump_files.length; i++) {
+//        const jump_sound = loadSound(jump_files[i]);
+//        jump_sfx.push(jump_sound);
+//    }
+}
+
 function setup() {
     createCanvas(640, 360);
     
     stuff = new Group();
     
-    
     // character setup
     character = createSprite(100,20,32,32);
+    character.setCollider("rectangle", 0, 0, 25, 33);
     const idle_anim = loadAnimation("assets/idle/idle0.png","assets/idle/idle2.png");
     const run_anim = loadAnimation("assets/am_run/run1.png","assets/am_run/run9.png")
     character.addAnimation("idle", idle_anim);
@@ -52,11 +64,12 @@ function setup() {
     walls = new Group();
     for (let i = 0; i < NUM_WALLS; i++){
         const wall = createSprite(
-        random(width,width*1.5),
+        random(width + i*width/NUM_WALLS,width*1.5 + (i+1)*width/NUM_WALLS),
         height*5/6,
         40,
         height/3.5
         );
+        console.log(width + i*width/NUM_WALLS,width*1.5 + (i+1)*width/NUM_WALLS)
         
         const wall_imgs = ["assets/walls/wall1.png"];
         
@@ -146,10 +159,13 @@ function draw() {
         character.velocity.y += GRAVITY;
     }
     
+//    jump event
+    
     if (keyWentDown("SPACE")){
         if (!character.isJumping){
             character.velocity.y -= JUMP_SPEED;
             character.isJumping = true;
+//            jump_sfx[0].play();
         }
     }
     
@@ -196,8 +212,8 @@ function draw() {
     //drawSprites();
    
     drawSprites(stuff);
-    drawSprites(walls);
     drawSprites(salve);
+    drawSprites(walls);
     
 //    ui
     camera.off();
