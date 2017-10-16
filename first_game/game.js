@@ -109,7 +109,11 @@ function setup() {
         clouds.add(cloud);
     }
     
-    beam = createSprite(0,0,100,height*2);
+    beam = createSprite(0,height/2,100,height*2);
+    beam.setCollider("rectangle", 0,0,80,height);
+    const beam_anim = loadAnimation("assets/beam/beam1.png","assets/beam/beam5.png");
+    beam.addAnimation("beaming", beam_anim);
+    beam.debug = true;
     stuff.add(beam);
     
     salve = new Group();
