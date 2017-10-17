@@ -1,3 +1,4 @@
+var bg;
 var character;
 var platform;
 var clouds;
@@ -6,6 +7,8 @@ var beam;
 var salve;
 var invis_wall;
 var stuff;
+var damage;
+var laser;
 var cooldown = 0;
 const SPEED = 4;
 const GRAVITY = 1;
@@ -31,6 +34,7 @@ function preload() {
 
 function setup() {
     createCanvas(640, 360);
+    bg = loadImage("assets/background/background3.png");
     
     stuff = new Group();
     
@@ -78,9 +82,10 @@ function setup() {
             wall.addImage(wall_img);
         }
         walls.add(wall);
+        wall.setCollider("rectangle", 0, 0, 90, 130);
+        wall.debug = true;
         
     }
-    walls.debug = true;
     
     
     invis_wall = new Group();
@@ -109,12 +114,27 @@ function setup() {
         clouds.add(cloud);
     }
     
+    damage = new Group();
+    
     beam = createSprite(0,height/2,100,height*2);
     beam.setCollider("rectangle", 0,0,80,height);
     const beam_anim = loadAnimation("assets/beam/beam1.png","assets/beam/beam5.png");
     beam.addAnimation("beaming", beam_anim);
     beam.debug = true;
-    stuff.add(beam);
+    damage.add(beam);
+    
+    laser = createSprite(
+        random(width*2.5,width*3),
+        height/2,
+        100,
+        height*2
+    );
+    laser.setCollider("rectangle", 0,0,80,height);
+    laser.debug = true;
+    
+    laser.addAnimation("lasering", beam_anim);
+    damage.add(laser);
+    
     
     salve = new Group();
     for (let i = 0; i < NUM_SALVE; i++){
@@ -136,6 +156,7 @@ function setup() {
 }
 
 function draw() {
+    
     background("lightblue");
     
     for (let i = 0; i < clouds.length; i++){
@@ -189,6 +210,12 @@ function draw() {
         character.lives--;
     }
     
+    if (character.overlap(laser)){
+        character.lives--;
+    }
+    wrap(laser, random(width*2.5, width*3));
+    
+    
     for (let i = 0; i < salve.length; i++) {
         const life = salve[i];
         if (character.overlap(life)) {
@@ -215,6 +242,7 @@ function draw() {
     
     //drawSprites();
    
+    drawSprites(damage);
     drawSprites(stuff);
     drawSprites(salve);
     drawSprites(walls);
