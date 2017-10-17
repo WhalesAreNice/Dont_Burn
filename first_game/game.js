@@ -1,6 +1,6 @@
 var bg;
 var character;
-var platform;
+var platforms;
 var clouds;
 var walls;
 var beam;
@@ -10,10 +10,13 @@ var stuff;
 var damage;
 var laser;
 var cooldown = 0;
+const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
+const WIND = 1;
 const JUMP_SPEED = SPEED*4;
 const NUM_CLOUDS = 10;
+const NUM_PLATFORMS = 30;
 const NUM_BUSHES = 8;
 const NUM_WALLS = 3;
 const NUM_SALVE = 1;
@@ -53,8 +56,22 @@ function setup() {
     stuff.add(character);
     
     //platform setup
-    platform = createSprite(width/2, height - 10, width*2, 20);
-    stuff.add(platform);
+    platforms = new Group();
+    
+    for(let i = 0; i < NUM_PLATFORMS; i++){
+        const platform = createSprite(i*platform_size, height-20, platform_size, platform_size);
+        
+        const platform_imgs = ["assets/platform/platform_tile.png"];
+        
+        for (let i = 0; i < NUM_PLATFORMS; i++) {
+            const platform_img = loadImage(platform_imgs[floor(random(0,platform_imgs.length))]);
+            platform.addImage(platform_img);
+        }
+        platforms.add(platform);
+        platform.setCollider("rectangle", 0, 10, platform_size, 30);
+        platform.debug = true;
+    }
+    
     
 //    platform = loadImage("assets/platform/platform3.png");
     
@@ -68,12 +85,12 @@ function setup() {
     walls = new Group();
     for (let i = 0; i < NUM_WALLS; i++){
         const wall = createSprite(
-        random(width + i*width/NUM_WALLS,width*1.5 + (i+1)*width/NUM_WALLS),
+        random(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS),
         height*5/6,
         40,
         height/3.5
         );
-        console.log(width + i*width/NUM_WALLS,width*1.5 + (i+1)*width/NUM_WALLS)
+        console.log(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS)
         
         const wall_imgs = ["assets/walls/wall1.png"];
         
@@ -90,7 +107,7 @@ function setup() {
     
     invis_wall = new Group();
     const invis_walls1 = createSprite(-1,height/2,2, height);
-    const invis_walls2 = createSprite(width+100, height/2, 200, height);
+    const invis_walls2 = createSprite(width, height/2, 200, height);
     invis_wall.add(invis_walls1, invis_walls2);
     
     
@@ -140,7 +157,7 @@ function setup() {
     for (let i = 0; i < NUM_SALVE; i++){
         const life = createSprite (
         random(0, width),
-        random(height/2, height),
+        random(height/2, height-140),
         30,
         20
         );
@@ -158,6 +175,8 @@ function setup() {
 function draw() {
     
     background("lightblue");
+//    camera.on();
+    
     
     for (let i = 0; i < clouds.length; i++){
         const cloud = clouds[i];
@@ -175,7 +194,7 @@ function draw() {
         character.changeAnimation("run");
     }
     
-    if (character.collide(platform) || character.collide(walls)) {
+    if (character.collide(platforms) || character.collide(walls)) {
         character.velocity.y = 0;
         if(character.isJumping){
             character.isJumping = false;
@@ -183,6 +202,8 @@ function draw() {
     } else {
         character.velocity.y += GRAVITY;
     }
+    
+    
     
 //    jump event
     
@@ -226,12 +247,24 @@ function draw() {
         }
     }
     
+    //overlapping push
     
-//    wrapping platform
-    wrap(platform, width);
+//    while (character.overlap(walls)){
+//        character.position.x +=1;
+//    }
+    
+    
+//    wrapping platforms and walls
+    
+    for(let i = 0; i < platforms.length; i++){
+        const platform = platforms[i];
+        wrap(platform, platform_size*NUM_PLATFORMS);
+    }
+    
     for(let i = 0; i < walls.length; i++) {
         const wall = walls[i];
-        wrap(wall, random(width*1.5, width*3));
+        wrap(wall, random(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS));
+        
     }
     
     
@@ -242,10 +275,12 @@ function draw() {
     
     //drawSprites();
    
-    drawSprites(damage);
+    drawSprites(platforms);
     drawSprites(stuff);
     drawSprites(salve);
     drawSprites(walls);
+    drawSprites(damage);
+    
     
 //    ui
     camera.off();
