@@ -13,7 +13,7 @@ var cooldown = 0;
 const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
-const WIND = 1;
+const WIND = 0.1;
 const JUMP_SPEED = SPEED*4;
 const NUM_CLOUDS = 10;
 const NUM_PLATFORMS = 30;
@@ -42,7 +42,7 @@ function setup() {
     stuff = new Group();
     
     // character setup
-    character = createSprite(100,20,32,32);
+    character = createSprite(100,320,32,32);
     character.setCollider("rectangle", 0, 0, 25, 33);
     const idle_anim = loadAnimation("assets/idle/idle0.png","assets/idle/idle2.png");
     const run_anim = loadAnimation("assets/am_run/run1.png","assets/am_run/run9.png")
@@ -52,8 +52,9 @@ function setup() {
     character.debug = true;
     character.lives = 100;
     
-    
     stuff.add(character);
+    
+    
     
     //platform setup
     platforms = new Group();
@@ -106,8 +107,8 @@ function setup() {
     
     
     invis_wall = new Group();
-    const invis_walls1 = createSprite(-1,height/2,2, height);
-    const invis_walls2 = createSprite(width, height/2, 200, height);
+    const invis_walls1 = createSprite(-5,height/2,10, height);
+    const invis_walls2 = createSprite(100,height/2,10, height);
     invis_wall.add(invis_walls1, invis_walls2);
     
     
@@ -173,9 +174,9 @@ function setup() {
 }
 
 function draw() {
-    
-    background("lightblue");
-//    camera.on();
+    camera.off();
+    background(bg);
+    camera.on();
     
     
     for (let i = 0; i < clouds.length; i++){
@@ -203,6 +204,20 @@ function draw() {
         character.velocity.y += GRAVITY;
     }
     
+//    if(character.position.x <= camera.position.x-width/2){
+//        character.collide(walls) = false;
+//    }
+    
+    console.log(character.isJumping);
+    
+    
+    //wind force
+    if(character.position.x >= camera.position.x+100){
+        character.velocity.x -= WIND;
+    } else{
+        character.velocity.x = 0;
+    }
+    
     
     
 //    jump event
@@ -219,14 +234,25 @@ function draw() {
     if (keyWentDown("w") && cooldown <= 0) {
         character.position.x += 200; 
         cooldown += 300;
+        
+//        while (character.overlap(walls)){
+//            character.position.x +=1;
+//        }
     }
     
     if (cooldown > 0) {
         cooldown -= 1;
     }
     
-    character.collide(walls);
     
+    //character doesn't fall off the left
+    if(character.position.x <= camera.position.x-width/2){
+        character.position.x += 10;
+        character.position.y = 320;
+    } 
+
+    
+    //damaging character
     if (character.overlap(beam)){
         character.lives--;
     }
@@ -253,6 +279,12 @@ function draw() {
 //        character.position.x +=1;
 //    }
     
+//    if(!character.collide(walls)){
+//        while (character.overlap(walls)){
+//            character.position.x +=1;
+//        }
+//    }
+    
     
 //    wrapping platforms and walls
     
@@ -273,13 +305,16 @@ function draw() {
     beam.position.x += CAMERA_SPEED;
     character.position.x += CAMERA_SPEED;
     
+    
+    
+    
     //drawSprites();
    
     drawSprites(platforms);
-    drawSprites(stuff);
     drawSprites(salve);
     drawSprites(walls);
     drawSprites(damage);
+    drawSprites(stuff);
     
     
 //    ui
