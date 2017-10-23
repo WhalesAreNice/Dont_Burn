@@ -5,11 +5,14 @@ var clouds;
 var walls;
 var beam;
 var salve;
+var heart;
 var invis_wall;
 var stuff;
 var damage;
 var laser;
 var cooldown = 0;
+var max_life = 200;
+var blinks;
 const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
@@ -20,6 +23,7 @@ const NUM_PLATFORMS = 30;
 const NUM_BUSHES = 8;
 const NUM_WALLS = 3;
 const NUM_SALVE = 1;
+const NUM_HEART = 1;
 const CAMERA_SPEED = 5;
 
 
@@ -170,6 +174,28 @@ function setup() {
         salve.debug = true;
     }
     
+    heart = new Group();
+    for (let i = 0; i < NUM_HEART; i++){
+        const hp = createSprite (
+        random(0, width),
+        random(height/2, height-140),
+        30,
+        20
+        );
+        
+        const heart_img = loadImage("assets/rewards/heart.png");
+        hp.addImage(heart_img);
+        
+        heart.add(hp);
+        heart.debug = true;
+    }
+    
+    blinks = new Group();
+    
+    const blinker = createSprite(100,60,50,50);
+    const blink_symbol_img = loadImage("assets/blink_symbol/blink_symbol.png");
+    blinker.addImage(blink_symbol_img);
+    blinks.add(blinker);
     
 }
 
@@ -248,7 +274,9 @@ function draw() {
     //character doesn't fall off the left
     if(character.position.x <= camera.position.x-width/2){
         character.position.x += 10;
-        character.position.y = 320;
+        if(character.position.y >= 320){
+            character.position.y = 320;
+        };
     } 
 
     
@@ -272,6 +300,22 @@ function draw() {
             wrap (life, random(width*2, width*6));
         }
     }
+    
+    for (let i = 0; i < heart.length; i++) {
+        const hp = heart[i];
+        if (character.overlap(hp)) {
+            max_life += 20;
+            hp.position.x += random(width*2, width*6);
+        } else {
+            wrap (hp, random(width*2, width*6));
+        }
+    }
+    
+    if (character.lives > max_life) {
+        character.lives = max_life;
+    }
+    
+    
     
     //overlapping push
     
@@ -312,6 +356,7 @@ function draw() {
    
     drawSprites(platforms);
     drawSprites(salve);
+    drawSprites(heart);
     drawSprites(walls);
     drawSprites(damage);
     drawSprites(stuff);
@@ -321,12 +366,38 @@ function draw() {
     camera.off();
     drawSprites(clouds);
     drawSprites(invis_wall);
+    drawSprites(blinks);
+    
     fill(0);
+    stroke(0);
+    strokeWeight(2);
+    rect(55,7,300,17);
+    rect(495,7, 100, 17);
+    fill("red");
+    strokeWeight(0);
+    rect(90,8,260*character.lives/max_life,15);
+    
+    fill(0,0,0,200);
+    
+    if(!cooldown == 0){
+        arc(100,60,50,50,HALF_PI+PI-PI/300*cooldown*2,HALF_PI+PI, PIE);
+    };
+    
+    fill(255);
     textAlign(LEFT);
     textSize(12);
-    text("Life: " + character.lives, 60,20);
+    text("Life: ", 60,20); 
+    text(character.lives+"/"+max_life, 180,20);
     text("Score: " + floor(character.position.x/100), 500, 20);
-    text("Blink Cooldown: " + ceil  (cooldown/60), 60, 50);
+    textSize(30);
+    strokeWeight(4);
+    
+    if(!cooldown == 0){
+        text(ceil(cooldown/60), 92, 70);
+    };
+    textSize(12);
+    strokeWeight(0);
+    fill(0);
     
 //    detect game ending
 //    if(character.lives <= 0) {
