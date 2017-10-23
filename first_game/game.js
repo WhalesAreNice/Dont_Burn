@@ -29,14 +29,44 @@ const CAMERA_SPEED = 5;
 
 
 //audio
-//var jump_sfx = [];
-//const jump_files = ["assets/sfx/character/jump0.wav", "assets/sfx/character/jump1.wav", "assets/sfx/character/jump2.wav", "assets/sfx/character/jump3.wav"];
+var jump_sfx = [];
+const jump_files = ["assets/sfx/character/jump1.wav", "assets/sfx/character/jump3.wav", "assets/sfx/character/jump4.wav"];
+
+var burn_sfx = [];
+const burn_files = ["assets/sfx/character/burn4.wav", "assets/sfx/character/burn5.wav", "assets/sfx/character/burn6.wav"];
+
+var blink_sfx = [];
+const blink_files = ["assets/sfx/character/blink1.wav", "assets/sfx/character/blink2.wav", "assets/sfx/character/blink3.wav"];
+
+var pickup_sfx = [];
+const pickup_files = ["assets/sfx/character/pickup1.wav", "assets/sfx/character/pickup2.wav"];
+
+var death_sfx = [];
+const death_files = ["assets/sfx/character/death/wav"];
 
 function preload() {
-//    for ( let i = 0; i < jump_files.length; i++) {
-//        const jump_sound = loadSound(jump_files[i]);
-//        jump_sfx.push(jump_sound);
-//    }
+    for ( let i = 0; i < jump_files.length; i++) {
+        const jump_sound = loadSound(jump_files[i]);
+        jump_sfx.push(jump_sound);
+    }
+    
+    for ( let i = 0; i < burn_files.length; i++) {
+        const burn_sound = loadSound(burn_files[i]);
+        burn_sfx.push(burn_sound);
+    }
+    
+    for ( let i = 0; i < blink_files.length; i++) {
+        const blink_sound = loadSound(blink_files[i]);
+        blink_sfx.push(blink_sound);
+    }
+    
+    for ( let i = 0; i < pickup_files.length; i++) {
+        const pickup_sound = loadSound(pickup_files[i]);
+        pickup_sfx.push(pickup_sound);
+    }
+    
+    const death_sound = loadSound(death_files(0));
+    death_sfx.push(death_sound);
 }
 
 function setup() {
@@ -57,7 +87,6 @@ function setup() {
     character.lives = 100;
     
     stuff.add(character);
-    
     
     
     //platform setup
@@ -252,7 +281,7 @@ function draw() {
         if (!character.isJumping){
             character.velocity.y -= JUMP_SPEED;
             character.isJumping = true;
-//            jump_sfx[0].play();
+            jump_sfx[floor(random(0, jump_sfx.length))].play();
         }
     }
     
@@ -260,6 +289,7 @@ function draw() {
     if (keyWentDown("w") && cooldown <= 0) {
         character.position.x += 200; 
         cooldown += 300;
+        blink_sfx[floor(random(0, blink_sfx.length))].play();
         
 //        while (character.overlap(walls)){
 //            character.position.x +=1;
@@ -278,15 +308,24 @@ function draw() {
             character.position.y = 320;
         };
     } 
-
+    
+    console.log(frameCount);
     
     //damaging character
     if (character.overlap(beam)){
         character.lives--;
+        setTimeout(function(){
+            burn_sfx[floor(random(0, burn_sfx.length))].play();
+        }, 100);
     }
     
     if (character.overlap(laser)){
         character.lives--;
+        
+        setTimeout(function(){
+            burn_sfx[floor(random(0, burn_sfx.length))].play();
+        }, 100);
+        
     }
     wrap(laser, random(width*2.5, width*3));
     
@@ -296,6 +335,7 @@ function draw() {
         if (character.overlap(life)) {
             character.lives += 40;
             life.position.x += random(width*2, width*6);
+            pickup_sfx[floor(random(0, pickup_sfx.length))].play();
         } else {
             wrap (life, random(width*2, width*6));
         }
@@ -306,6 +346,7 @@ function draw() {
         if (character.overlap(hp)) {
             max_life += 20;
             hp.position.x += random(width*2, width*6);
+            pickup_sfx[floor(random(0, pickup_sfx.length))].play();
         } else {
             wrap (hp, random(width*2, width*6));
         }
@@ -420,3 +461,5 @@ function wrap(obj, reset) {
         obj.position.x += reset;
     }
 }
+
+
