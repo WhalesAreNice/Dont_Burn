@@ -138,7 +138,7 @@ function setup() {
         40,
         height/3.5
         );
-        console.log(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS)
+//        console.log(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS)
         
         const wall_imgs = ["assets/walls/wall1.png"];
         
@@ -367,7 +367,7 @@ function game() {
 //        character.collide(walls) = false;
 //    }
     
-    console.log(character.isJumping);
+//    console.log(character.isJumping);
     
     
     //wind force
@@ -413,7 +413,7 @@ function game() {
         };
     } 
     
-    console.log(frameCount);
+//    console.log(frameCount);
     
     //damaging character
     if (character.overlap(beam)){
