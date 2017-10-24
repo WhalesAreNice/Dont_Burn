@@ -97,7 +97,7 @@ function setup() {
     character.addAnimation("idle", idle_anim);
     character.addAnimation("run", run_anim);
     character.isJumping = true;
-    character.debug = true;
+//    character.debug = true;
     character.lives = 100;
     
     stuff.add(character);
@@ -117,7 +117,7 @@ function setup() {
         }
         platforms.add(platform);
         platform.setCollider("rectangle", 0, 10, platform_size, 30);
-        platform.debug = true;
+//        platform.debug = true;
     }
     
     
@@ -148,7 +148,7 @@ function setup() {
         }
         walls.add(wall);
         wall.setCollider("rectangle", 0, 0, 90, 130);
-        wall.debug = true;
+//        wall.debug = true;
         
     }
     
@@ -185,7 +185,7 @@ function setup() {
     beam.setCollider("rectangle", 0,0,80,height);
     const beam_anim = loadAnimation("assets/beam/beam1.png","assets/beam/beam5.png");
     beam.addAnimation("beaming", beam_anim);
-    beam.debug = true;
+//    beam.debug = true;
     damage.add(beam);
     
     laser = createSprite(
@@ -195,7 +195,7 @@ function setup() {
         height*2
     );
     laser.setCollider("rectangle", 0,0,80,height);
-    laser.debug = true;
+//    laser.debug = true;
     
     laser.addAnimation("lasering", beam_anim);
     damage.add(laser);
@@ -214,7 +214,7 @@ function setup() {
         life.addImage(salve_img);
         
         salve.add(life);
-        salve.debug = true;
+//        salve.debug = true;
     }
     
     heart = new Group();
@@ -230,7 +230,7 @@ function setup() {
         hp.addImage(heart_img);
         
         heart.add(hp);
-        heart.debug = true;
+//        heart.debug = true;
     }
     
     blinks = new Group();
@@ -308,16 +308,25 @@ function end(){
         max_life = 200;
         character.position.x = 100;
         camera.position.x = width/2;
+        beam.position.x = 0;
+        laser.position.x = random(width*2.5,width*3);
         
         for(let i = 0; i < platforms.length; i++){
-            const platform = platforms[i];
-            platform.position.x = platform_size*platform;
+            platforms[i].position.x = platform_size*i;
         }
     
         for(let i = 0; i < walls.length; i++) {
-            const wall = walls[i];
-            wall.position.x = random(width + wall*width/NUM_WALLS + 50, width + (wall+1)*width/NUM_WALLS);
+            walls[i].position.x = random(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS);
         }
+        
+        for(let i = 0; i < salve.length; i++) {
+            salve[i].position.x = random(0, width);
+        }
+        
+        for(let i = 0; i < heart.length; i++) {
+            heart[i].position.x = random(0, width);
+        }
+        
         
     }
     
