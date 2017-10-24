@@ -27,6 +27,17 @@ const NUM_HEART = 1;
 const CAMERA_SPEED = 5;
 
 
+/*
+0 intro screen
+1 instructions
+2 rules
+3 game
+4 end
+*/
+
+var gameState = 0;
+
+
 
 //audio
 var jump_sfx = [];
@@ -42,7 +53,7 @@ var pickup_sfx = [];
 const pickup_files = ["assets/sfx/character/pickup1.wav", "assets/sfx/character/pickup2.wav"];
 
 var death_sfx = [];
-const death_files = ["assets/sfx/character/death/wav"];
+const death_files = ["assets/sfx/character/death.wav"];
 
 function preload() {
     for ( let i = 0; i < jump_files.length; i++) {
@@ -65,8 +76,11 @@ function preload() {
         pickup_sfx.push(pickup_sound);
     }
     
-    const death_sound = loadSound(death_files(0));
-    death_sfx.push(death_sound);
+    for ( let i = 0; i < death_files.length; i++) {
+        const death_sound = loadSound(death_files[i]);
+        death_sfx.push(death_sound);
+    }
+    
 }
 
 function setup() {
@@ -229,6 +243,87 @@ function setup() {
 }
 
 function draw() {
+    if(gameState == 0) {
+        intro();
+    } else if (gameState == 1) {
+        instructions();
+    } else if (gameState == 2) {
+        rules();
+    } else if (gameState == 3) {
+        game();
+    } else if (gameState == 4) {
+        end();
+    }
+}
+
+function intro(){
+    camera.off();
+    background(0);
+    fill(255);
+    textSize(24);
+    textAlign(CENTER);
+    text("Don't Burn", width/2, height/2);
+    textSize(16);
+    text("By Allan Ng", width/2, height/2 + 30);
+    textSize(20);
+    text("Press Enter to start", width/2, height - 50);
+    
+    if(keyWentDown("ENTER")){
+        gameState = 1;
+    }
+}
+
+function instructions(){
+    textAlign(LEFT);
+    textSize(24);
+    background(0);
+    text("Press Arrow Keys to move left and right", 100, 50);
+    text("Press W to teleport to the right a short distance", 100, 100);
+    text("Press Space to jump", 100, 150);
+    text("Avoid the pillars of fire", 100, 200);
+    text("Hearts increase your maximum hp", 100, 250);
+    text("potions heals your current hp", 100, 300);
+    text("Press Enter to Continue", 100, 350);
+    if(keyWentDown("ENTER")){
+        gameState = 3;
+    }
+    
+}
+
+function end(){
+    camera.off();
+    background(0);
+    textAlign(CENTER);
+    textSize(30);
+    fill(255);
+    text("You have died", width/2, 100);
+    textSize(24);
+    text("Your score is : " + floor(character.position.x/100), width/2, 150);
+    text("Press Enter to play again", width/2, 250);
+    
+    
+    if(keyWentDown("ENTER")){
+        gameState = 3;
+        character.lives = 100;
+        max_life = 200;
+        character.position.x = 100;
+        camera.position.x = width/2;
+        
+        for(let i = 0; i < platforms.length; i++){
+            const platform = platforms[i];
+            platform.position.x = platform_size*platform;
+        }
+    
+        for(let i = 0; i < walls.length; i++) {
+            const wall = walls[i];
+            wall.position.x = random(width + wall*width/NUM_WALLS + 50, width + (wall+1)*width/NUM_WALLS);
+        }
+        
+    }
+    
+}
+
+function game() {
     camera.off();
     background(bg);
     camera.on();
@@ -440,11 +535,14 @@ function draw() {
     strokeWeight(0);
     fill(0);
     
-//    detect game ending
-//    if(character.lives <= 0) {
-//        gameState = 3;
-//        character.velocity.y = 0;
-//    }
+//  detect game ending
+    if(character.lives <= 0) {
+        gameState = 4;
+        character.velocity.y = 0;
+        camera.position.x += 0;
+        beam.position.x += 0;
+        character.position.x += 0;
+    }
 }
 
 function constantMovement() {
@@ -461,5 +559,8 @@ function wrap(obj, reset) {
         obj.position.x += reset;
     }
 }
+
+
+
 
 
