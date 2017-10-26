@@ -13,6 +13,7 @@ var laser;
 var cooldown = 0;
 var max_life = 200;
 var blinks;
+var current_damage;
 const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
@@ -97,7 +98,6 @@ function setup() {
     character.addAnimation("idle", idle_anim);
     character.addAnimation("run", run_anim);
     character.isJumping = true;
-//    character.debug = true;
     character.lives = 100;
     
     stuff.add(character);
@@ -117,17 +117,8 @@ function setup() {
         }
         platforms.add(platform);
         platform.setCollider("rectangle", 0, 10, platform_size, 30);
-//        platform.debug = true;
     }
     
-    
-//    platform = loadImage("assets/platform/platform3.png");
-    
-//    const plat_img = loadImage("assets/platform/platform3.png");
-//    plat.addImage(plat_img);
-//    platform.add(plat);
-//    
-//    platform.debug = true;
     
     
     walls = new Group();
@@ -138,7 +129,6 @@ function setup() {
         40,
         height/3.5
         );
-//        console.log(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS)
         
         const wall_imgs = ["assets/walls/wall1.png"];
         
@@ -148,7 +138,6 @@ function setup() {
         }
         walls.add(wall);
         wall.setCollider("rectangle", 0, 0, 90, 130);
-//        wall.debug = true;
         
     }
     
@@ -185,7 +174,6 @@ function setup() {
     beam.setCollider("rectangle", 0,0,80,height);
     const beam_anim = loadAnimation("assets/beam/beam1.png","assets/beam/beam5.png");
     beam.addAnimation("beaming", beam_anim);
-//    beam.debug = true;
     damage.add(beam);
     
     laser = createSprite(
@@ -195,7 +183,6 @@ function setup() {
         height*2
     );
     laser.setCollider("rectangle", 0,0,80,height);
-//    laser.debug = true;
     
     laser.addAnimation("lasering", beam_anim);
     damage.add(laser);
@@ -214,7 +201,6 @@ function setup() {
         life.addImage(salve_img);
         
         salve.add(life);
-//        salve.debug = true;
     }
     
     heart = new Group();
@@ -230,7 +216,6 @@ function setup() {
         hp.addImage(heart_img);
         
         heart.add(hp);
-//        heart.debug = true;
     }
     
     blinks = new Group();
@@ -354,7 +339,7 @@ function game() {
         character.changeAnimation("run");
     }
     
-    if (character.collide(platforms) || character.collide(walls)) {
+    if (character.collide(platforms)) {
         character.velocity.y = 0;
         if(character.isJumping){
             character.isJumping = false;
@@ -363,11 +348,19 @@ function game() {
         character.velocity.y += GRAVITY;
     }
     
-//    if(character.position.x <= camera.position.x-width/2){
-//        character.collide(walls) = false;
-//    }
-    
-//    console.log(character.isJumping);
+    for (let i = 0; i < walls.length; i++) {
+	   const wall = walls[i];
+        if(character.position.x >= camera.position.x - width/2 + 20){
+            if (character.collide(wall)) {
+                if (character.position.y + character.height*1.6  < wall.position.y - wall.height/2) {
+                    character.velocity.y = 0;
+                    if (character.isJumping) {
+                        character.isJumping = false;
+                    }
+                }
+            }
+        }
+    }
     
     
     //wind force
@@ -394,10 +387,6 @@ function game() {
         character.position.x += 200; 
         cooldown += 300;
         blink_sfx[floor(random(0, blink_sfx.length))].play();
-        
-//        while (character.overlap(walls)){
-//            character.position.x +=1;
-//        }
     }
     
     if (cooldown > 0) {
@@ -413,22 +402,41 @@ function game() {
         };
     } 
     
-//    console.log(frameCount);
     
     //damaging character
     if (character.overlap(beam)){
-        character.lives--;
-        setTimeout(function(){
+        character.lives -= 1 + frameCount/3000;
+        
+        
+        
+        let playing_sound = false;
+        
+        for(let i = 0; i < burn_sfx.length; i++) {
+            if(burn_sfx[i].isPlaying()){
+               playing_sound = true;
+               }
+        }
+        if(!playing_sound){
             burn_sfx[floor(random(0, burn_sfx.length))].play();
-        }, 100);
+        }
     }
     
     if (character.overlap(laser)){
-        character.lives--;
+        character.lives -= 1 + frameCount/3000;
         
-        setTimeout(function(){
+        let playing_sound = false;
+        
+        for(let i = 0; i < burn_sfx.length; i++) {
+            if(burn_sfx[i].isPlaying()){
+               playing_sound = true;
+               }
+        }
+        if(!playing_sound){
             burn_sfx[floor(random(0, burn_sfx.length))].play();
-        }, 100);
+        }
+        
+        
+        
         
     }
     wrap(laser, random(width*2.5, width*3));
@@ -459,21 +467,6 @@ function game() {
     if (character.lives > max_life) {
         character.lives = max_life;
     }
-    
-    
-    
-    //overlapping push
-    
-//    while (character.overlap(walls)){
-//        character.position.x +=1;
-//    }
-    
-//    if(!character.collide(walls)){
-//        while (character.overlap(walls)){
-//            character.position.x +=1;
-//        }
-//    }
-    
     
 //    wrapping platforms and walls
     
@@ -532,7 +525,7 @@ function game() {
     textAlign(LEFT);
     textSize(12);
     text("Life: ", 60,20); 
-    text(character.lives+"/"+max_life, 180,20);
+    text(floor(character.lives)+"/"+max_life, 180,20);
     text("Score: " + floor(character.position.x/100), 500, 20);
     textSize(30);
     strokeWeight(4);
