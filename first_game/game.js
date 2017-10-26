@@ -1,5 +1,6 @@
 var bg;
 var character;
+var ghost;
 var platforms;
 var clouds;
 var walls;
@@ -14,6 +15,7 @@ var cooldown = 0;
 var max_life = 200;
 var blinks;
 var current_damage;
+
 const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
@@ -42,13 +44,13 @@ var gameState = 0;
 
 //audio
 var jump_sfx = [];
-const jump_files = ["assets/sfx/character/jump1.wav", "assets/sfx/character/jump3.wav", "assets/sfx/character/jump4.wav"];
+const jump_files = ["assets/sfx/character/jump5.wav", "assets/sfx/character/jump6.wav", "assets/sfx/character/jump7.wav"];
 
 var burn_sfx = [];
 const burn_files = ["assets/sfx/character/burn4.wav", "assets/sfx/character/burn5.wav", "assets/sfx/character/burn6.wav"];
 
 var blink_sfx = [];
-const blink_files = ["assets/sfx/character/blink1.wav", "assets/sfx/character/blink2.wav", "assets/sfx/character/blink3.wav"];
+const blink_files = ["assets/sfx/character/blink4.wav", "assets/sfx/character/blink5.wav", "assets/sfx/character/blink6.wav"];
 
 var pickup_sfx = [];
 const pickup_files = ["assets/sfx/character/pickup1.wav", "assets/sfx/character/pickup2.wav"];
@@ -93,14 +95,18 @@ function setup() {
     // character setup
     character = createSprite(100,320,32,32);
     character.setCollider("rectangle", 0, 0, 25, 33);
-    const idle_anim = loadAnimation("assets/idle/idle0.png","assets/idle/idle2.png");
     const run_anim = loadAnimation("assets/am_run/run1.png","assets/am_run/run9.png")
-    character.addAnimation("idle", idle_anim);
     character.addAnimation("run", run_anim);
     character.isJumping = true;
     character.lives = 100;
     
     stuff.add(character);
+    
+    //character ghost setup
+    ghost = createSprite(300,320,32,32);
+    const ghost_run_anim = loadAnimation("assets/am_run_ghost/ghost1.png", "assets/am_run_ghost/ghost9.png")
+    ghost.addAnimation("run", ghost_run_anim);
+    stuff.add(ghost);
     
     
     //platform setup
@@ -322,6 +328,11 @@ function game() {
     background(bg);
     camera.on();
     
+    //ghost positioning
+    
+    ghost.position.x = character.position.x + 200;
+    ghost.position.y = character.position.y;
+    
     
     for (let i = 0; i < clouds.length; i++){
         const cloud = clouds[i];
@@ -391,6 +402,12 @@ function game() {
     
     if (cooldown > 0) {
         cooldown -= 1;
+    }
+    
+    if(!cooldown == 0){
+        ghost.visible = false;
+    } else {
+        ghost.visible = true;
     }
     
     
