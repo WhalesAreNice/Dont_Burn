@@ -580,6 +580,12 @@ function wrap(obj, reset) {
 }
 
 
+document.addEventListener("keydown", function(event) {
+    if (event.which == 32) {
+        event.preventDefault();
+    }
+});
+
 
 
 
