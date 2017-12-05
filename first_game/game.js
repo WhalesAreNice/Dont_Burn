@@ -38,6 +38,85 @@ const CAMERA_SPEED = 5;
 4 end
 */
 
+
+var menus = [
+    {
+        titles:[
+            "My First Game by &"
+        ],
+        buttons:[
+            {
+                text:"Play Game",
+                state: 3
+            },
+            {
+                text:"controls",
+                state:1
+            },
+            {
+                text:"instructions",
+                state:2
+            }
+        ] 
+    },
+    {
+        titles:[
+            "controls",
+            "press Space to jump",
+            "arrow keys to move",
+            "press W to teleport" 
+        ],
+        buttons: [
+            {
+                text:"Play Game",
+                state: 3
+            },
+            {
+                text:"Home",
+                state:0
+            }
+        ]
+    },
+    {
+        title:[
+            "Instructions",
+            "Avoid the pillars of Fire",
+            "Hearts increase your maximum hp",
+            "Potions heal your current hp"
+        ],
+        buttons:[
+            {
+                text:"Play Game",
+                state:3
+            },
+            {
+                text:"Home",
+                state:0
+            }
+        ]
+    },
+    {
+        title:[
+            "You Died"
+        ],
+        buttons: [
+            {
+                text:"Try again",
+                state:3
+            },
+            {
+                text:"Home",
+                state:0
+            }
+        ]
+    }
+    
+]
+
+
+
+
+
 var gameState = 0;
 
 
@@ -231,21 +310,77 @@ function setup() {
     blinker.addImage(blink_symbol_img);
     blinks.add(blinker);
     
+    for (let i = 0; i < menus.length; i++){
+        const menu = menus[i];
+        menu.sprites = new Group();
+        for (let j = 0; j < menu.buttons.length; j++){
+            const b = menu.buttons[j];
+            const button = createSprite(440, 120 + j * 120);
+            button.addAnimation("idle", "assets/menu/button0.png");
+            button.addAnimation("hover", "assets/menu/button1.png", "assets/menu/button2.png");
+            button.addAnimation("click", "assets/menu/button3.png", "assets/menu/button4.png");
+            button.clicked = false;
+            button.mouseActive = true;
+            button.text = b.text;
+            button.state = b.state;
+            menu.sprites.add(button);
+        }
+    }
+    
 }
 
 function draw() {
     if(gameState == 0) {
-        intro();
+        menu(0); //intro
     } else if (gameState == 1) {
-        instructions();
+        menu(1); //controls
     } else if (gameState == 2) {
-        rules();
+        menu(2); //instructions
     } else if (gameState == 3) {
         game();
     } else if (gameState == 4) {
         end();
     }
 }
+
+function menu(index){
+    camera.off();
+    background(51);
+    fill(255);
+    textSize(24);
+    textFont("sans-serif");
+    textAlign(CENTER);
+    for(let i = 0; i < menus[index].titles.length; i++){
+        text(menus[index].titles[i], 40, 40 + i * 60, width/3, height);
+    }
+    
+    for (let i = 0; i < menus[index].sprites,length; i++) {
+        const button = menus[index].sprites[i];
+        button.display();
+        textFont("Monaco");
+        textAlign(CENTER);
+        text(button.text, button.position.x, button.position.y);
+        if (button.mouseIsPressed){
+            button.changeAnimation("click");
+            button.clicked = true;
+        } else if (button.mouseIsOver){
+            button.changeAnimation("hover");
+            if(button.clicked){
+                gameState = button.state;
+                if (index == 3 || index == 4){
+                    reset();
+                    buildLevel();
+                }
+            }
+        }
+    }
+}
+
+
+function buildLevel(){
+    
+}
+
 
 function intro(){
     camera.off();
