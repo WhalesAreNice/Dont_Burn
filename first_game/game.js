@@ -97,7 +97,8 @@ var menus = [
     },
     {
         title:[
-            "You Died"
+            "You Died",
+            "Your score is : "
         ],
         buttons: [
             {
@@ -188,51 +189,6 @@ function setup() {
     stuff.add(ghost);
     
     
-    //platform setup
-    platforms = new Group();
-    
-    for(let i = 0; i < NUM_PLATFORMS; i++){
-        const platform = createSprite(i*platform_size, height-20, platform_size, platform_size);
-        
-        const platform_imgs = ["assets/platform/platform_tile.png"];
-        
-        for (let i = 0; i < NUM_PLATFORMS; i++) {
-            const platform_img = loadImage(platform_imgs[floor(random(0,platform_imgs.length))]);
-            platform.addImage(platform_img);
-        }
-        platforms.add(platform);
-        platform.setCollider("rectangle", 0, 10, platform_size, 30);
-    }
-    
-    
-    
-    walls = new Group();
-    for (let i = 0; i < NUM_WALLS; i++){
-        const wall = createSprite(
-        random(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS),
-        height*5/6,
-        40,
-        height/3.5
-        );
-        
-        const wall_imgs = ["assets/walls/wall1.png"];
-        
-        for(let i = 0; i < NUM_WALLS; i++) {
-            const wall_img = loadImage(wall_imgs[floor(random(0, wall_imgs.length))]);
-            wall.addImage(wall_img);
-        }
-        walls.add(wall);
-        wall.setCollider("rectangle", 0, 0, 90, 130);
-        
-    }
-    
-    
-    invis_wall = new Group();
-    const invis_walls1 = createSprite(-5,height/2,10, height);
-    const invis_walls2 = createSprite(100,height/2,10, height);
-    invis_wall.add(invis_walls1, invis_walls2);
-    
-    
     clouds = new Group();
     for (let i = 0; i < NUM_CLOUDS; i++) {
         const cloud = createSprite(
@@ -252,8 +208,73 @@ function setup() {
         cloud.velocity.x = -random(5,10);
         clouds.add(cloud);
     }
-    
+    platforms = new Group();
+    walls = new Group();
+    invis_wall = new Group();
     damage = new Group();
+    salve = new Group();
+    heart = new Group();
+    blinks = new Group();
+    
+    buildLevel();
+    
+    for (let i = 0; i < menus.length; i++){
+        const menu = menus[i];
+        menu.sprites = new Group();
+        for (let j = 0; j < menu.buttons.length; j++){
+            const b = menu.buttons[j];
+            const button = createSprite(440, 120 + j * 120);
+            button.addAnimation("idle", "assets/menu/button0.png");
+            button.addAnimation("hover", "assets/menu/button1.png", "assets/menu/button2.png");
+            button.addAnimation("click", "assets/menu/button3.png", "assets/menu/button4.png");
+            button.clicked = false;
+            button.mouseActive = true;
+            button.text = b.text;
+            button.state = b.state;
+            menu.sprites.add(button);
+        }
+    }
+}
+
+
+
+
+function buildLevel(){
+    
+    for(let i = 0; i < NUM_PLATFORMS; i++){
+        const platform = createSprite(i*platform_size, height-20, platform_size, platform_size);
+        
+        const platform_imgs = ["assets/platform/platform_tile.png"];
+        
+        for (let i = 0; i < NUM_PLATFORMS; i++) {
+            const platform_img = loadImage(platform_imgs[floor(random(0,platform_imgs.length))]);
+            platform.addImage(platform_img);
+        }
+        platforms.add(platform);
+        platform.setCollider("rectangle", 0, 10, platform_size, 30);
+    }
+    
+    for (let i = 0; i < NUM_WALLS; i++){
+        const wall = createSprite(
+        width + i*width/NUM_WALLS + 50,
+        height*5/6,
+        40,
+        height/3.5
+        );
+        
+        const wall_imgs = ["assets/walls/wall1.png"];
+        
+        for(let i = 0; i < NUM_WALLS; i++) {
+            const wall_img = loadImage(wall_imgs[floor(random(0, wall_imgs.length))]);
+            wall.addImage(wall_img);
+        }
+        walls.add(wall);
+        wall.setCollider("rectangle", 0, 0, 90, 130);
+    }
+    
+    const invis_walls1 = createSprite(-5,height/2,10, height);
+    const invis_walls2 = createSprite(100,height/2,10, height);
+    invis_wall.add(invis_walls1, invis_walls2);
     
     beam = createSprite(0,height/2,100,height*2);
     beam.setCollider("rectangle", 0,0,80,height);
@@ -272,8 +293,6 @@ function setup() {
     laser.addAnimation("lasering", beam_anim);
     damage.add(laser);
     
-    
-    salve = new Group();
     for (let i = 0; i < NUM_SALVE; i++){
         const life = createSprite (
         random(0, width),
@@ -288,7 +307,6 @@ function setup() {
         salve.add(life);
     }
     
-    heart = new Group();
     for (let i = 0; i < NUM_HEART; i++){
         const hp = createSprite (
         random(0, width),
@@ -303,31 +321,17 @@ function setup() {
         heart.add(hp);
     }
     
-    blinks = new Group();
-    
     const blinker = createSprite(100,60,50,50);
     const blink_symbol_img = loadImage("assets/blink_symbol/blink_symbol.png");
     blinker.addImage(blink_symbol_img);
     blinks.add(blinker);
     
-    for (let i = 0; i < menus.length; i++){
-        const menu = menus[i];
-        menu.sprites = new Group();
-        for (let j = 0; j < menu.buttons.length; j++){
-            const b = menu.buttons[j];
-            const button = createSprite(440, 120 + j * 120);
-            button.addAnimation("idle", "assets/menu/button0.png");
-            button.addAnimation("hover", "assets/menu/button1.png", "assets/menu/button2.png");
-            button.addAnimation("click", "assets/menu/button3.png", "assets/menu/button4.png");
-            button.clicked = false;
-            button.mouseActive = true;
-            button.text = b.text;
-            button.state = b.state;
-            menu.sprites.add(button);
-        }
-    }
+    
+    
     
 }
+
+
 
 function draw() {
     if(gameState == 0) {
@@ -354,6 +358,10 @@ function menu(index){
         text(menus[index].titles[i], 40, 40 + i * 60, width/3, height);
     }
     
+    if(gameState == 4){
+        text("Your score is : " + floor(character.position.x/100), width/2, 150);
+    }
+    
     for (let i = 0; i < menus[index].sprites,length; i++) {
         const button = menus[index].sprites[i];
         button.display();
@@ -375,12 +383,6 @@ function menu(index){
         }
     }
 }
-
-
-function buildLevel(){
-    
-}
-
 
 function intro(){
     camera.off();
@@ -414,6 +416,21 @@ function instructions(){
         gameState = 3;
     }
     
+}
+
+
+function reset(){
+    character.lives = 100;
+    max_life = 200;
+    character.position.x = 100;
+    camera.position.x = width/2;
+    
+    walls.clear();
+    salve.clear();
+    heart.clear();
+    laser.clear();
+    beam.clear();
+    platforms.clear();
 }
 
 function end(){
@@ -629,7 +646,7 @@ function game() {
     
     for(let i = 0; i < walls.length; i++) {
         const wall = walls[i];
-        wrap(wall, random(width + i*width/NUM_WALLS + 50, width + (i+1)*width/NUM_WALLS));
+        wrap(wall, width + i*width/NUM_WALLS + 50);
         
     }
     
