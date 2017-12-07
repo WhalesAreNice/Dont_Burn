@@ -223,7 +223,7 @@ function setup() {
         menu.sprites = new Group();
         for (let j = 0; j < menu.buttons.length; j++){
             const b = menu.buttons[j];
-            const button = createSprite(440, 120 + j * 120);
+            const button = createSprite(440, 100 + j * 90);
             button.addAnimation("idle", "assets/menu/button0.png");
             button.addAnimation("hover", "assets/menu/button1.png", "assets/menu/button2.png");
             button.addAnimation("click", "assets/menu/button3.png", "assets/menu/button4.png");
@@ -362,8 +362,9 @@ function menu(index){
         text("Your score is : " + floor(character.position.x/100), width/2, 150);
     }
     
-    for (let i = 0; i < menus[index].sprites,length; i++) {
+    for (let i = 0; i < menus[index].sprites.length; i++) {
         const button = menus[index].sprites[i];
+        console.log
         button.display();
         textFont("Monaco");
         textAlign(CENTER);
@@ -380,6 +381,9 @@ function menu(index){
                     buildLevel();
                 }
             }
+        } else {
+            button.changeAnimation("idle");
+            button.clicked = false;
         }
     }
 }
