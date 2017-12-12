@@ -50,21 +50,21 @@ var menus = [
                 state: 3
             },
             {
-                text:"controls",
+                text:"Controls",
                 state:1
             },
             {
-                text:"instructions",
+                text:"Instructions",
                 state:2
             }
         ] 
     },
     {
         titles:[
-            "controls",
-            "press Space to jump",
-            "arrow keys to move",
-            "press W to teleport" 
+            "Controls",
+            "Press Space to jump",
+            "Arrow keys to move",
+            "Press W to teleport" 
         ],
         buttons: [
             {
@@ -78,7 +78,7 @@ var menus = [
         ]
     },
     {
-        title:[
+        titles:[
             "Instructions",
             "Avoid the pillars of Fire",
             "Hearts increase your maximum hp",
@@ -96,7 +96,7 @@ var menus = [
         ]
     },
     {
-        title:[
+        titles:[
             "You Died",
             "Your score is : "
         ],
@@ -343,7 +343,7 @@ function draw() {
     } else if (gameState == 3) {
         game();
     } else if (gameState == 4) {
-        end();
+        menu(4);
     }
 }
 
@@ -368,13 +368,14 @@ function menu(index){
         button.display();
         textFont("Monaco");
         textAlign(CENTER);
-        text(button.text, button.position.x, button.position.y);
+        text(button.text, button.position.x, button.position.y+8);
         if (button.mouseIsPressed){
             button.changeAnimation("click");
             button.clicked = true;
         } else if (button.mouseIsOver){
             button.changeAnimation("hover");
             if(button.clicked){
+                button.clicked = false;
                 gameState = button.state;
                 if (index == 3 || index == 4){
                     reset();
@@ -435,6 +436,7 @@ function reset(){
     laser.clear();
     beam.clear();
     platforms.clear();
+    damage.clear();
 }
 
 function end(){
