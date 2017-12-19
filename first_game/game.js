@@ -276,7 +276,6 @@ function setup() {
 
 function buildLevel(){
     
-    frameCount = 0;
     
     for(let i = 0; i < NUM_PLATFORMS; i++){
         const platform = createSprite(i*platform_size, height-20, platform_size, platform_size);
@@ -413,7 +412,6 @@ function draw() {
     } else if (gameState == 4) {
         end();
     }
-    console.log(frameCount);
 }
 
 function menu(index){
@@ -433,7 +431,6 @@ function menu(index){
     
     for (let i = 0; i < menus[index].sprites.length; i++) {
         const button = menus[index].sprites[i];
-        console.log
         button.display();
         textFont("Monaco");
         textAlign(CENTER);
@@ -540,15 +537,20 @@ function end(){
         }
         
         for(let i = 0; i < salve.length; i++) {
-            salve[i].position.x = random(0, width);
+            salve[i].position.x = random(width*2, width*6);
         }
         
         for(let i = 0; i < heart.length; i++) {
-            heart[i].position.x = random(0, width);
+            heart[i].position.x = random(width*2, width*6);
         }
         
         for(let i = 0; i < blink_reward.length; i++) {
-            blink_reward[i].position.x = random(0, width);
+            blink_reward[i].position.x = random(width*2, width*6);
+        }
+        
+        for(let i = 0; i < axes.length; i++) {
+            axes[i].position.x = width*3;
+            axes[i].position.y = random(height*3.5/5, height*4.5/5);
         }
         
         
@@ -652,6 +654,7 @@ function game() {
         
         
         
+        
         blink_initial.position.x = character.position.x - 200;
         blink_end.position.x = character.position.x;
 
@@ -669,6 +672,8 @@ function game() {
     if(blink_end.animation.images.length == blink_end.length - 1){
         blink_end.animation.visible = false;
     }
+    
+    console.log(blink_end.animation.playing);
     
     if (cooldown > 0) {
         cooldown -= 1;
@@ -733,6 +738,7 @@ function game() {
         axe.position.x += random(width*3, width*4);
         axe.position.y == random(height*3.5/5, height*4.5/5);
         character.position.x -= 60;
+        character.lives -= 40;
         
         let playing_sound = false;
         
@@ -851,7 +857,7 @@ function game() {
     fill(0,0,0,200);
     
     if(!cooldown == 0){
-        arc(100,60,50,50,HALF_PI+PI-PI/add_cooldown*cooldown*2,HALF_PI+PI, PIE);
+        arc(100,60,50,50,HALF_PI+PI-PI/300*cooldown*2,HALF_PI+PI, PIE);
     };
     
     fill(255);
