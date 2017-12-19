@@ -625,10 +625,12 @@ function game() {
     }
     
     
-    blink_initial.animation.stop();
-    blink_end.animation.stop();
+//    blink_initial.animation.stop();
+//    blink_end.animation.stop();
     blink_initial.animation.looping = false;
     blink_end.animation.looping = false;
+    blink_end.animation.frameDelay = 10;
+    blink_initial.animation.frameDelay = 10;
     
     
     if (keyWentDown("w") && cooldown <= 0) {
@@ -657,6 +659,13 @@ function game() {
 //        blink_initial.animation.visible = false;
 //        blink_end.animation.visible = false;
 //    }
+    
+    if(!blink_initial.animation.playing){
+        blink_initial.animation.visible = false;
+    }
+    if(!blink_end.animation.playing){
+        blink_end.animation.visible = false;
+    }
     
     if (cooldown > 0) {
         cooldown -= 1;
@@ -802,8 +811,8 @@ function game() {
     character.position.x += CAMERA_SPEED;
     axe.position.x += CAMERA_SPEED;
     axe.position.x -= 8;
-    blink_initial.position.x += CAMERA_SPEED;
-    blink_end.position.x += CAMERA_SPEED;
+    blink_initial.position.x += CAMERA_SPEED/2;
+    blink_end.position.x += CAMERA_SPEED/2;
     
     
     
