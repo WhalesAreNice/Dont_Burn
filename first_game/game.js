@@ -1,20 +1,26 @@
 var bg;
 var character;
 var ghost;
+var blink_initial;
+var blink_end;
 var platforms;
 var clouds;
 var walls;
 var beam;
 var salve;
+var blink_reward;
 var heart;
 var invis_wall;
 var stuff;
 var damage;
 var laser;
 var cooldown = 0;
+var add_cooldown = 300;
 var max_life = 200;
 var blinks;
 var current_damage;
+var axes;
+var axe;
 
 const platform_size = 55;
 const SPEED = 4;
@@ -26,6 +32,7 @@ const NUM_PLATFORMS = 30;
 const NUM_BUSHES = 8;
 const NUM_WALLS = 3;
 const NUM_SALVE = 1;
+const NUM_BLINK_REWARD = 1;
 const NUM_HEART = 1;
 const CAMERA_SPEED = 5;
 
@@ -42,7 +49,8 @@ const CAMERA_SPEED = 5;
 var menus = [
     {
         titles:[
-            "My First Game by &"
+            "Don't Burn",
+            "by Allan Ng"
         ],
         buttons:[
             {
@@ -135,8 +143,14 @@ const blink_files = ["assets/sfx/character/blink4.wav", "assets/sfx/character/bl
 var pickup_sfx = [];
 const pickup_files = ["assets/sfx/character/pickup1.wav", "assets/sfx/character/pickup2.wav"];
 
+var hit_sfx = [];
+const hit_files = ["assets/sfx/character/hit1.wav", "assets/sfx/character/hit2.wav"];
+
 var death_sfx = [];
 const death_files = ["assets/sfx/character/death.wav"];
+
+var ost = [];
+const ost_files = ["assets/sfx/dont_burn_ost4.mp3"];
 
 function preload() {
     for ( let i = 0; i < jump_files.length; i++) {
@@ -164,11 +178,21 @@ function preload() {
         death_sfx.push(death_sound);
     }
     
+    for ( let i = 0; i < hit_files.length; i++) {
+        const hit_sound = loadSound(hit_files[i]);
+        hit_sfx.push(hit_sound);
+    }
+    
+    
+    ost.push(loadSound(ost_files));
+    
 }
 
 function setup() {
     createCanvas(640, 360);
     bg = loadImage("assets/background/background3.png");
+    
+    
     
     stuff = new Group();
     
@@ -187,6 +211,17 @@ function setup() {
     const ghost_run_anim = loadAnimation("assets/am_run_ghost/ghost1.png", "assets/am_run_ghost/ghost9.png")
     ghost.addAnimation("run", ghost_run_anim);
     stuff.add(ghost);
+    
+    //blink animations
+    blink_initial = createSprite(300,320,32,32);
+    const blink_initial_anim = loadAnimation("assets/blink_initial/blink_initial0.png", "assets/blink_initial/blink_initial3.png");
+    blink_initial.addAnimation("blink_initial", blink_initial_anim);
+    stuff.add(blink_initial);
+    
+    blink_end = createSprite(300,320,32,32);
+    const blink_end_anim = loadAnimation("assets/blink_end/blink_end0.png", "assets/blink_end/blink_end3.png");
+    blink_end.addAnimation("blink_end", blink_end_anim);
+    stuff.add(blink_end);
     
     
     clouds = new Group();
@@ -213,8 +248,10 @@ function setup() {
     invis_wall = new Group();
     damage = new Group();
     salve = new Group();
+    blink_reward = new Group();
     heart = new Group();
     blinks = new Group();
+    axes = new Group();
     
     buildLevel();
     
@@ -235,9 +272,6 @@ function setup() {
         }
     }
 }
-
-
-
 
 function buildLevel(){
     
@@ -293,9 +327,20 @@ function buildLevel(){
     laser.addAnimation("lasering", beam_anim);
     damage.add(laser);
     
+    
+    axe = createSprite(width*3,random(height*3.5/5, height*4.5/5),100,100);
+    
+    const axe_spinning_anim = loadAnimation("assets/axe/axes_spin0.png","assets/axe/axes_spin7.png");
+    axe.addAnimation("spinning", axe_spinning_anim);
+    const axe_ground_anim = loadAnimation("assets/axe/axes_ground0.png","assets/axe/axes_ground3.png");
+    axe.addAnimation("ground", axe_ground_anim);
+    axes.add(axe);
+    
+    
+    
     for (let i = 0; i < NUM_SALVE; i++){
         const life = createSprite (
-        random(0, width),
+        random(width*2, width*6),
         random(height/2, height-140),
         30,
         20
@@ -307,9 +352,24 @@ function buildLevel(){
         salve.add(life);
     }
     
+    for (let i = 0; i < NUM_BLINK_REWARD; i++){
+        const blink_CD = createSprite (
+        random(width*2, width*6),
+        random(height/2, height-140),
+        30,
+        20
+        );
+        
+        const blink_img = loadImage("assets/blink_symbol/blinks.png");
+        blink_CD.addImage(blink_img);
+        
+        blink_reward.add(blink_CD);
+    }
+    
+    
     for (let i = 0; i < NUM_HEART; i++){
         const hp = createSprite (
-        random(0, width),
+        random(width*2, width*6),
         random(height/2, height-140),
         30,
         20
@@ -326,14 +386,19 @@ function buildLevel(){
     blinker.addImage(blink_symbol_img);
     blinks.add(blinker);
     
-    
-    
-    
 }
 
-
-
 function draw() {
+    
+    let play_sound = false;
+        if(ost[0].isPlaying()){
+            play_sound = true;
+        }
+        if(!play_sound){
+            ost[0].play();
+        }
+    
+    
     if(gameState == 0) {
         menu(0); //intro
     } else if (gameState == 1) {
@@ -423,7 +488,6 @@ function instructions(){
     
 }
 
-
 function reset(){
     character.lives = 100;
     max_life = 200;
@@ -432,11 +496,13 @@ function reset(){
     
     walls.clear();
     salve.clear();
+    blink_reward.clear();
     heart.clear();
     laser.clear();
     beam.clear();
     platforms.clear();
     damage.clear();
+    axes.clear();
 }
 
 function end(){
@@ -458,6 +524,7 @@ function end(){
         character.position.x = 100;
         camera.position.x = width/2;
         beam.position.x = 0;
+        add_cooldown = 300;
         laser.position.x = random(width*2.5,width*3);
         
         for(let i = 0; i < platforms.length; i++){
@@ -476,6 +543,10 @@ function end(){
             heart[i].position.x = random(0, width);
         }
         
+        for(let i = 0; i < blink_reward.length; i++) {
+            blink_reward[i].position.x = random(0, width);
+        }
+        
         
     }
     
@@ -490,6 +561,7 @@ function game() {
     
     ghost.position.x = character.position.x + 200;
     ghost.position.y = character.position.y;
+    
     
     
     for (let i = 0; i < clouds.length; i++){
@@ -556,7 +628,25 @@ function game() {
         character.position.x += 200; 
         cooldown += 300;
         blink_sfx[floor(random(0, blink_sfx.length))].play();
+        
+        blink_initial.draw(character.position.x, character.position.y);
+        blink_end.draw(character.position.x + 200, character.position.y);
+//        blink_initial.rewind();
+//        blink_end.rewind();
+//        blink_initial.visible = true;
+//        blink_end.visible = true;
+        
+        
+        blink_initial.position.x = character.position.x;
+        blink_end.position.x = character.position.x + 200;
+
+        blink_initial.position.y = character.position.y;
+        blink_end.position.y = character.position.y;
     }
+//        else if (!keyWentDown("w")) {
+//        blink_initial.visible = false;
+//        blink_end.visible = false;
+//    }
     
     if (cooldown > 0) {
         cooldown -= 1;
@@ -581,6 +671,9 @@ function game() {
     //damaging character
     if (character.overlap(beam)){
         character.lives -= 1 + frameCount/3000;
+        
+        
+        
         
         
         
@@ -609,12 +702,32 @@ function game() {
         if(!playing_sound){
             burn_sfx[floor(random(0, burn_sfx.length))].play();
         }
+    }
+    
+    wrap(laser, random(width*2.5, width*3));
+    
+    
+    if(character.collide(axe)){
+        axe.position.x += random(width*3, width*4);
+        axe.position.y == random(height*3.5/5, height*4.5/5);
+        character.position.x -= 60;
         
+        let playing_sound = false;
         
+        for(let i = 0; i < hit_sfx.length; i++) {
+            if(hit_sfx[i].isPlaying()){
+               playing_sound = true;
+               }
+        }
+        if(!playing_sound){
+            hit_sfx[floor(random(0, hit_sfx.length))].play();
+        }
         
         
     }
-    wrap(laser, random(width*2.5, width*3));
+    
+    axe_wrap(axe, random(width*3, width*4), random(height*3.5/5, height*4.5/5));
+    
     
     
     for (let i = 0; i < salve.length; i++) {
@@ -627,6 +740,22 @@ function game() {
             wrap (life, random(width*2, width*6));
         }
     }
+    
+    for (let i = 0; i < blink_reward.length; i++) {
+        const blink_CD = blink_reward[i];
+        if (character.overlap(blink_CD)) {
+            if(!add_cooldown <= 120){
+                add_cooldown *= 0.95;
+            } else {
+                add_cooldown = 120;
+            }
+            blink_CD.position.x += random(width*2, width*6);
+            pickup_sfx[floor(random(0, pickup_sfx.length))].play();
+        } else {
+            wrap (blink_CD, random(width*2, width*6));
+        }
+    }
+    
     
     for (let i = 0; i < heart.length; i++) {
         const hp = heart[i];
@@ -661,6 +790,10 @@ function game() {
     camera.position.x += CAMERA_SPEED;
     beam.position.x += CAMERA_SPEED;
     character.position.x += CAMERA_SPEED;
+    axe.position.x += CAMERA_SPEED;
+    axe.position.x -= 8;
+    blink_initial.position.x += CAMERA_SPEED;
+    blink_end.position.x += CAMERA_SPEED;
     
     
     
@@ -669,10 +802,13 @@ function game() {
    
     drawSprites(platforms);
     drawSprites(salve);
+    drawSprites(blink_reward);
     drawSprites(heart);
     drawSprites(walls);
     drawSprites(damage);
+    drawSprites(axes);
     drawSprites(stuff);
+    
     
     
 //    ui
@@ -693,7 +829,7 @@ function game() {
     fill(0,0,0,200);
     
     if(!cooldown == 0){
-        arc(100,60,50,50,HALF_PI+PI-PI/300*cooldown*2,HALF_PI+PI, PIE);
+        arc(100,60,50,50,HALF_PI+PI-PI/add_cooldown*cooldown*2,HALF_PI+PI, PIE);
     };
     
     fill(255);
@@ -737,6 +873,12 @@ function wrap(obj, reset) {
     }
 }
 
+function axe_wrap(obj, reset_width, reset_height){
+    if(camera.position.x - obj.position.x >= width/2){
+        obj.position.x += reset_width;
+    }
+    obj.position.y = reset_height;
+}
 
 document.addEventListener("keydown", function(event) {
     if (event.which == 32) {
