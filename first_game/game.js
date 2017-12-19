@@ -22,6 +22,7 @@ var current_damage;
 var axes;
 var axe;
 
+const PLAY_BLINK_ANIM = 4;
 const platform_size = 55;
 const SPEED = 4;
 const GRAVITY = 1;
@@ -624,6 +625,12 @@ function game() {
     }
     
     
+    blink_initial.animation.stop();
+    blink_end.animation.stop();
+    blink_initial.animation.looping = false;
+    blink_end.animation.looping = false;
+    
+    
     if (keyWentDown("w") && cooldown <= 0) {
         character.position.x += 200; 
         cooldown += 300;
@@ -631,21 +638,24 @@ function game() {
         
         blink_initial.draw(character.position.x, character.position.y);
         blink_end.draw(character.position.x + 200, character.position.y);
-//        blink_initial.rewind();
-//        blink_end.rewind();
-//        blink_initial.visible = true;
-//        blink_end.visible = true;
+        blink_initial.animation.rewind();
+        blink_end.animation.rewind();
+        blink_initial.animation.visible = true;
+        blink_end.animation.visible = true;
+        blink_initial.animation.play();
+        blink_end.animation.play();
         
         
-        blink_initial.position.x = character.position.x;
-        blink_end.position.x = character.position.x + 200;
+        
+        blink_initial.position.x = character.position.x - 200;
+        blink_end.position.x = character.position.x;
 
         blink_initial.position.y = character.position.y;
         blink_end.position.y = character.position.y;
     }
 //        else if (!keyWentDown("w")) {
-//        blink_initial.visible = false;
-//        blink_end.visible = false;
+//        blink_initial.animation.visible = false;
+//        blink_end.animation.visible = false;
 //    }
     
     if (cooldown > 0) {
