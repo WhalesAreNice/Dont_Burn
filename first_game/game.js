@@ -276,6 +276,8 @@ function setup() {
 
 function buildLevel(){
     
+    frameCount = 0;
+    
     for(let i = 0; i < NUM_PLATFORMS; i++){
         const platform = createSprite(i*platform_size, height-20, platform_size, platform_size);
         
@@ -409,8 +411,9 @@ function draw() {
     } else if (gameState == 3) {
         game();
     } else if (gameState == 4) {
-        menu(4);
+        end();
     }
+    console.log(frameCount);
 }
 
 function menu(index){
@@ -660,10 +663,10 @@ function game() {
 //        blink_end.animation.visible = false;
 //    }
     
-    if(!blink_initial.animation.playing){
+    if(blink_initial.animation.images.length == blink_initial.length - 1){
         blink_initial.animation.visible = false;
     }
-    if(!blink_end.animation.playing){
+    if(blink_end.animation.images.length == blink_end.length - 1){
         blink_end.animation.visible = false;
     }
     
