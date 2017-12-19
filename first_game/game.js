@@ -666,10 +666,10 @@ function game() {
 //        blink_end.animation.visible = false;
 //    }
     
-    if(blink_initial.animation.images.length == blink_initial.length - 1){
+    if(blink_initial.animation.getFrame() == blink_initial.animation.getLastFrame()){
         blink_initial.animation.visible = false;
     }
-    if(blink_end.animation.images.length == blink_end.length - 1){
+    if(blink_end.animation.getFrame() == blink_end.animation.getLastFrame()){
         blink_end.animation.visible = false;
     }
     
